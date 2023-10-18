@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-type Count = 1 | 2 | 3 | 4 | 5 | 6;
+interface Props {
+  minCount?: number;
+  maxCount?: number;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), { minCount: 1, maxCount: 6 });
 
 interface Emits {
   (e: "plusStep", step: number): void;
@@ -11,11 +17,14 @@ const emit = defineEmits<Emits>();
 
 const getSifterCount = async () => {
   // fetch from backend
-  return Math.ceil(Math.random() * 6) as Count;
+  return Math.floor(
+    Math.random() * (props.maxCount - props.minCount + 1) + props.minCount
+  );
 };
 
-const count = ref<Count>(1);
+const count = ref<number>(1);
 const randomCount = async () => {
+  if (props.disabled) return;
   count.value = await getSifterCount();
   return emit("plusStep", count.value);
 };

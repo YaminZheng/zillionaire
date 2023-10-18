@@ -1,34 +1,16 @@
 <script setup lang="ts">
-import { watch, ref, computed } from "vue";
+import { computed } from "vue";
 import type { El } from "./Road.vue";
 
 interface Props {
-  el?: El;
-  pointerMap: Record<string, El>;
+  interval?: number;
+  pointer?: El;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { interval: 300 });
 
-const interval = 300;
 const transition = computed(
-  () => `left ${interval}ms ease, top ${interval}ms ease`
-);
-const currentPointer = ref<El>();
-
-const sleep = (time: number = 1500): Promise<void> => {
-  return new Promise((resolve) => globalThis.setTimeout(() => resolve(), time));
-};
-
-watch(
-  () => props.el,
-  async (toEl) => {
-    const toSite = toEl!.site;
-    const fromSite = currentPointer.value?.site || 0;
-    for (let i = fromSite + 1; i <= toSite; i++) {
-      currentPointer.value = props.pointerMap[i];
-      await sleep(interval);
-    }
-  }
+  () => `left ${props.interval}ms ease, top ${props.interval}ms ease`
 );
 </script>
 
@@ -36,12 +18,14 @@ watch(
   <div
     class="pointer-box"
     :style="{
-      left: currentPointer?.l || 0,
-      top: currentPointer?.t || 0,
-      width: currentPointer?.style.width,
-      height: currentPointer?.style.height,
+      left: pointer?.l || 0,
+      top: pointer?.t || 0,
+      width: pointer?.style.width,
+      height: pointer?.style.height,
     }"
-  ></div>
+  >
+    <!-- img xxx  -->
+  </div>
 </template>
 
 <style lang="scss">
