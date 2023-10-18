@@ -15,3 +15,7 @@ yarn dev
 - 打开 /src/App.vue
 - 修改 roadMap 常量
 - 四方格，长宽对齐，数字为地，null为空，根据数字顺序走动
+
+## 展示
+![roadMap](./public/image1.jpg)
+![show](./public/image2.jpg)
