@@ -15,15 +15,17 @@ const props = defineProps<Props>();
 const computeWidth = (colNum: number) => 100 / colNum;
 const computeHeight = (rowNum: number) => 100 / rowNum;
 
-const createHolder = (colNum: number, rowNum: number, colIndex: number, rowIndex: number) => {
-  const el = document.createElement("div") as El;
-  const _width = computeWidth(colNum);
-  const _height = computeHeight(rowNum);
-  el.style.width = `${_width}%`;
-  el.style.height = `${_height}%`;
-  el.style.left = `${_width * colIndex}%`;
-  el.style.top = `${_height * rowIndex}%`;
-  return el;
+const getCreateHolder = (colNum: number, rowNum: number) => {
+  const width = computeWidth(colNum);
+  const height = computeHeight(rowNum);
+  return (colIndex: number, rowIndex: number) => {
+    const el = document.createElement("div") as El;
+    el.style.width = `${width}%`;
+    el.style.height = `${height}%`;
+    el.style.left = `${width * colIndex}%`;
+    el.style.top = `${height * rowIndex}%`;
+    return el;
+  };
 };
 
 const injectStyle = (el: El, formatFn?: RoadFormat) => {
@@ -37,10 +39,11 @@ const getRoadRowNum = (roadMap: RoadMap) => roadMap.length || 3;
 
 const generateRoad = (roadMap: RoadMap) => {
   const elList = [] as Array<El>;
+  const createHolder = getCreateHolder(getRoadColNum(roadMap), getRoadRowNum(roadMap));
   roadMap.forEach((cols, rowIndex) => {
     cols.forEach((row, colIndex) => {
       if (row !== null) {
-        const el = createHolder(getRoadColNum(roadMap), getRoadRowNum(roadMap), colIndex, rowIndex);
+        const el = createHolder(colIndex, rowIndex);
         el.site = row;
         injectStyle(el, props.roadMapFormat[row]);
         elList.push(el);
