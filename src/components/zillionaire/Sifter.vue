@@ -36,8 +36,8 @@ const randomCount = async () => {
 
 <style lang="scss">
 .sifter-box {
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
   background-color: orange;
   cursor: pointer;
 }

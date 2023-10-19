@@ -1,13 +1,14 @@
 <script lang="ts">
-export type El = HTMLDivElement & { l: string; t: string; site: number };
+export type El = HTMLDivElement & { site: number };
 </script>
 
 <script setup lang="ts">
 import { ref, shallowRef } from "vue";
-import type { RoadMap } from "./Zillionaire.vue";
+import type { RoadMap, RoadFormat } from "./Zillionaire.vue";
 
 interface Props {
   roadMap: RoadMap;
+  roadMapFormat: { [K: number]: RoadFormat };
 }
 const props = defineProps<Props>();
 
@@ -20,11 +21,15 @@ const createHolder = (colNum: number, rowNum: number, colIndex: number, rowIndex
   const _height = computeHeight(rowNum);
   el.style.width = `${_width}%`;
   el.style.height = `${_height}%`;
-  el.l = `${_width * colIndex}%`;
-  el.t = `${_height * rowIndex}%`;
-  el.style.left = el.l;
-  el.style.top = el.t;
+  el.style.left = `${_width * colIndex}%`;
+  el.style.top = `${_height * rowIndex}%`;
   return el;
+};
+
+const injectStyle = (el: El, formatFn?: RoadFormat) => {
+  el.classList.add("road-holder");
+  if (!formatFn) return;
+  formatFn(el);
 };
 
 const getRoadColNum = (roadMap: RoadMap) => roadMap[0]?.length || 3;
@@ -37,8 +42,7 @@ const generateRoad = (roadMap: RoadMap) => {
       if (row !== null) {
         const el = createHolder(getRoadColNum(roadMap), getRoadRowNum(roadMap), colIndex, rowIndex);
         el.site = row;
-        el.innerText = `${row}`;
-        el.classList.add("road-holder");
+        injectStyle(el, props.roadMapFormat[row]);
         elList.push(el);
       }
     });
@@ -75,10 +79,11 @@ defineExpose({ getPointerFromSite, initRoad: init });
   width: 100%;
   height: 100%;
   position: relative;
+  background-image: url(./WechatIMG40.jpg);
+  background-size: 100% 100%;
 
   .road-holder {
     position: absolute;
-    border: 1px solid;
   }
 }
 </style>

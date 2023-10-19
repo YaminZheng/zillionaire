@@ -11,10 +11,11 @@ defineProps<Props>();
   <div
     class="pointer-box"
     :style="{
-      left: pointer?.l || 0,
-      top: pointer?.t || 0,
+      left: pointer?.style.left || 0,
+      top: pointer?.style.top || 0,
       width: pointer?.style.width,
       height: pointer?.style.height,
+      transform: pointer?.style.transform,
     }"
   >
     <!-- img xxx  -->

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Zillionaire, { RoadMap } from "./components/zillionaire/Zillionaire.vue";
+import Zillionaire, { RoadMap, RoadFormat, El } from "./components/zillionaire/Zillionaire.vue";
 
 // 是否可以循环跳
 const IS_CAN_LOOP = false;
@@ -28,8 +28,54 @@ const ROAD_MAP: RoadMap = [
   [_____, _____, _____, _____, _____, _____, _(14), _(15), _(16), _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____],
   [_____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____],
   [_____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____],
-  [_____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____],
 ];
+
+const _7 = (el: El) => (el.style.transform = "translate(20%, 60%)");
+const _10 = (el: El) => {
+  el.style.height = "8.8%";
+  el.style.transform = "translate(20%, 55%)";
+};
+const _12 = (el: El) => {
+  el.style.height = "8.5%";
+  el.style.transform = "translate(20%, 44%)";
+};
+const _14 = (el: El) => (el.style.transform = "translate(40%, 20%)");
+const _16 = (el: El) => (el.style.transform = "translate(-20%, -50%)");
+const _28 = (el: El) => (el.style.transform = "translate(34%, 40%)");
+const roadMapFormat: { [K: string]: RoadFormat } = {
+  0: (el: El) => (el.style.transform = "translate(30%, 90%)"),
+  1: (el: El) => (el.style.transform = "translate(40%, 80%)"),
+  5: (el: El) => (el.style.transform = "translate(50%, 30%)"),
+  6: (el: El) => (el.style.transform = "translate(40%, 10%)"),
+  7: _7,
+  8: _7,
+  9: _7,
+  10: _10,
+  11: _10,
+  12: _12,
+  13: _12,
+  14: _14,
+  15: _14,
+  16: _16,
+  17: _16,
+  18: (el: El) => (el.style.transform = "translate(-20%, -40%)"),
+  19: (el: El) => (el.style.transform = "translate(-20%, -34%)"),
+  20: (el: El) => (el.style.transform = "translate(-10%, -30%)"),
+  21: (el: El) => (el.style.transform = "translate(-30%, -60%)"),
+  22: (el: El) => (el.style.transform = "translate(-30%, -40%)"),
+  23: _16,
+  24: _16,
+  25: (el: El) => (el.style.transform = "translate(0%, -50%)"),
+  26: (el: El) => (el.style.transform = "translate(-25%, -10%)"),
+  27: (el: El) => (el.style.transform = "translate(-25%, -10%)"),
+  28: _28,
+  29: _28,
+  30: _28,
+  31: _28,
+  32: _28,
+  33: _28,
+  40: (el: El) => (el.style.transform = "translate(5%, 50%)"),
+};
 
 /**
   # 默认是大富翁样式
@@ -49,7 +95,14 @@ const ROAD_MAP: RoadMap = [
 
 <template>
   <div class="box">
-    <Zillionaire :roadMap="ROAD_MAP" :isCanLoop="IS_CAN_LOOP" :minSifter="SIFTER_MIN" :maxSifter="SIFTER_MAX" :jumpInterval="JUMP_INTERVAL" />
+    <Zillionaire
+      :roadMap="ROAD_MAP"
+      :roadMapFormat="roadMapFormat"
+      :isCanLoop="IS_CAN_LOOP"
+      :minSifter="SIFTER_MIN"
+      :maxSifter="SIFTER_MAX"
+      :jumpInterval="JUMP_INTERVAL"
+    />
   </div>
 </template>
 
