@@ -1,8 +1,20 @@
 <script lang="ts">
 export type RoadMap = Array<Array<number | null>>;
 
-const sleep = (time: number = 1500): Promise<void> => {
-  return new Promise((resolve) => globalThis.setTimeout(() => resolve(), time));
+const sleep = (el: HTMLElement) => {
+  return new Promise<void>((resove) => {
+    const transitionend = () => {
+      resove();
+      el.removeEventListener("transitionend", transitionend);
+    };
+    const transitioncancel = () => {
+      resove();
+      el.removeEventListener("transitioncancel", transitioncancel);
+    };
+
+    el.addEventListener("transitionend", transitionend);
+    el.addEventListener("transitioncancel", transitioncancel);
+  });
 };
 </script>
 
@@ -38,6 +50,7 @@ const finish = () => {
   console.log("success");
 };
 
+const pointerRef = ref<InstanceType<typeof Pointer>>();
 const isLooping = ref(false);
 const loopPointer = async (step: number) => {
   isLooping.value = true;
@@ -45,7 +58,7 @@ const loopPointer = async (step: number) => {
   for (let i = 0; i < step; i++) {
     const currentSite = currentPointer.value!.site;
     currentPointer.value = getPointerFromSite(currentSite + 1) || getPointerFromSite(minSite.value);
-    await sleep(props.jumpInterval);
+    await sleep(pointerRef.value!.$el);
   }
   isLooping.value = false;
 };
@@ -74,7 +87,7 @@ onMounted(() => {
 <template>
   <Road ref="roadRef" :roadMap="roadMap" :initSite="minSite">
     <template #pointer>
-      <Pointer class="pointer-container" :pointer="currentPointer" />
+      <Pointer ref="pointerRef" class="pointer-container" :pointer="currentPointer" />
     </template>
     <template #sifter>
       <Sifter
