@@ -5,7 +5,7 @@
   "endOfLine": "lf",
   "htmlWhitespaceSensitivity": "css",
   "jsxSingleQuote": false,
-  "printWidth": 200,
+  "printWidth": 120,
   "proseWrap": "preserve",
   "quoteProps": "as-needed",
   "semi": true,

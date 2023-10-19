@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Road, { RoadMap } from "./components/Road.vue";
+import Zillionaire, { RoadMap } from "./components/zillionaire/Zillionaire.vue";
 
 // 是否可以循环跳
 const IS_CAN_LOOP = false;
@@ -34,19 +34,28 @@ const ROAD_MAP: RoadMap = [
 /**
   # 默认是大富翁样式
 
-  # 老虎机可以按照下边参数调整
+  # 九宫格可以按照下边参数调整
   IS_CAN_LOOP = true
   JUMP_INTERVAL = 30
   SIFTER_MIN = 60
   SIFTER_MAX = 60
   ROAD_MAP = [
-    [1,2,3],
-    [8,null,4],
-    [7,6,5]
+    [__(0), __(1), __(2)],
+    [__(7), _____, __(3)],
+    [__(6), __(5), __(4)]
   ]
  */
 </script>
 
 <template>
-  <Road :roadMap="ROAD_MAP" :isCanLoop="IS_CAN_LOOP" :minSifter="SIFTER_MIN" :maxSifter="SIFTER_MAX" :jumpInterval="JUMP_INTERVAL" />
+  <div class="box">
+    <Zillionaire :roadMap="ROAD_MAP" :isCanLoop="IS_CAN_LOOP" :minSifter="SIFTER_MIN" :maxSifter="SIFTER_MAX" :jumpInterval="JUMP_INTERVAL" />
+  </div>
 </template>
+
+<style lang="scss">
+.box {
+  width: 100vw;
+  height: 100vh;
+}
+</style>

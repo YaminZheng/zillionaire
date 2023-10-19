@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { El } from "./Road.vue";
 
 interface Props {
-  interval?: number;
   pointer?: El;
 }
-
-const props = withDefaults(defineProps<Props>(), { interval: 300 });
-
-const transition = computed(
-  () => `left ${props.interval}ms ease, top ${props.interval}ms ease`
-);
+defineProps<Props>();
 </script>
 
 <template>
@@ -32,6 +25,5 @@ const transition = computed(
 .pointer-box {
   background-color: red;
   position: absolute;
-  transition: v-bind(transition);
 }
 </style>
