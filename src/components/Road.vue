@@ -26,19 +26,13 @@ const props = withDefaults(defineProps<Props>(), {
   maxSifter: 6,
   jumpInterval: 300,
 });
-const maxSite = computed(() =>
-  Math.max(...(props.roadMap.flat().filter(Boolean) as Array<number>))
-);
+const maxSite = computed(() => Math.max(...(props.roadMap.flat().filter((n) => n !== null) as Array<number>)));
+const minSite = computed(() => Math.min(...(props.roadMap.flat().filter((n) => n !== null) as Array<number>)));
 
 const computeWidth = (colNum: number) => 100 / colNum;
 const computeHeight = (rowNum: number) => 100 / rowNum;
 
-const createHolder = (
-  colNum: number,
-  rowNum: number,
-  colIndex: number,
-  rowIndex: number
-) => {
+const createHolder = (colNum: number, rowNum: number, colIndex: number, rowIndex: number) => {
   const el = document.createElement("div") as El;
   const _width = computeWidth(colNum);
   const _height = computeHeight(rowNum);
@@ -62,13 +56,9 @@ const generateRoad = (roadMap: RoadMap) => {
   roadMap.forEach((cols, rowIndex) => {
     cols.forEach((row, colIndex) => {
       if (row !== null) {
-        const el = createHolder(
-          getRoadColNum(roadMap),
-          getRoadRowNum(roadMap),
-          colIndex,
-          rowIndex
-        );
+        const el = createHolder(getRoadColNum(roadMap), getRoadRowNum(roadMap), colIndex, rowIndex);
         el.site = row;
+        el.innerText = `${row}`;
         elList.push(el);
       }
     });
@@ -91,7 +81,7 @@ onMounted(() => {
     _roadBoxRef.appendChild(el);
   });
 
-  currentPointer.value = pointerList[0];
+  currentPointer.value = pointerMap.value[minSite.value];
 });
 
 const isFinished = ref(false);
@@ -106,8 +96,7 @@ const loopPointer = async (step: number) => {
   isLooping.value = true;
   for (let i = 0; i < step; i++) {
     const currentSite = currentPointer.value!.site;
-    currentPointer.value =
-      pointerMap.value[currentSite + 1] || Object.values(pointerMap.value)[0];
+    currentPointer.value = pointerMap.value[currentSite + 1] || pointerMap.value[minSite.value];
     await sleep(props.jumpInterval);
   }
   isLooping.value = false;
@@ -125,25 +114,13 @@ const plusStep = (step: number) => {
   }
 };
 
-const transition = computed(
-  () => `left ${props.jumpInterval}ms ease, top ${props.jumpInterval}ms ease`
-);
+const transition = computed(() => `left ${props.jumpInterval}ms ease, top ${props.jumpInterval}ms ease`);
 </script>
 
 <template>
   <div ref="roadBoxRef" class="road-box">
-    <Pointer
-      class="pointer-container"
-      :interval="jumpInterval"
-      :pointer="currentPointer"
-    />
-    <Sifter
-      class="sifter-container"
-      :minCount="minSifter"
-      :maxCount="maxSifter"
-      :disabled="isLooping || isFinished"
-      @plusStep="plusStep"
-    />
+    <Pointer class="pointer-container" :interval="jumpInterval" :pointer="currentPointer" />
+    <Sifter class="sifter-container" :minCount="minSifter" :maxCount="maxSifter" :disabled="isLooping || isFinished" @plusStep="plusStep" />
   </div>
 </template>
 
