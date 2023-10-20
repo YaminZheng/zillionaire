@@ -1,12 +1,11 @@
 <script lang="ts">
 import type { El } from "./Road.vue";
-
-export interface Props {
-  pointer?: El;
-}
 </script>
 
 <script setup lang="ts">
+interface Props {
+  pointer?: El;
+}
 defineProps<Props>();
 </script>
 

@@ -1,15 +1,15 @@
 <script lang="ts">
 export type El = HTMLDivElement & { site: number };
-export interface Props {
-  roadMap: RoadMap;
-  roadMapFormat: { [K: number]: RoadFormat };
-}
 </script>
 
 <script setup lang="ts">
 import { ref, shallowRef } from "vue";
 import type { RoadMap, RoadFormat } from "./Zillionaire.vue";
 
+interface Props {
+  roadMap: RoadMap;
+  roadMapFormat: { [K: number]: RoadFormat };
+}
 const props = defineProps<Props>();
 
 const computeWidth = (colNum: number) => 100 / colNum;
@@ -81,6 +81,8 @@ defineExpose({ getPointerFromSite, initRoad: init });
 .road-box {
   width: 100%;
   height: 100%;
+  min-width: 1000px;
+  min-height: 400px;
   position: relative;
 
   .road-holder {

@@ -4,15 +4,6 @@ export type RoadMap = Array<Array<number | null>>;
 export type RoadFormat = (el: El) => any;
 export { El };
 
-export interface Props {
-  roadMap: RoadMap;
-  roadMapFormat?: { [K: number]: RoadFormat };
-  isCanLoop?: boolean;
-  minSifter?: number;
-  maxSifter?: number;
-  jumpInterval?: number;
-}
-
 const sleep = (el: HTMLElement) => {
   return new Promise<void>((resove) => {
     const transitionend = () => {
@@ -36,11 +27,19 @@ const sleep = (el: HTMLElement) => {
 </script>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, shallowRef } from "vue";
+import { ref, computed, onMounted, shallowRef, watch } from "vue";
 import Road from "./Road.vue";
 import Pointer from "./Pointer.vue";
 import Sifter from "./Sifter.vue";
 
+export interface Props {
+  roadMap: RoadMap;
+  roadMapFormat?: { [K: number]: RoadFormat };
+  isCanLoop?: boolean;
+  minSifter?: number;
+  maxSifter?: number;
+  jumpInterval?: number;
+}
 const props = withDefaults(defineProps<Props>(), {
   isCanLoop: false,
   minSifter: 1,
@@ -69,10 +68,18 @@ const isLooping = ref(false);
 const loopPointer = async (step: number) => {
   isLooping.value = true;
   const getPointerFromSite = roadRef.value!.getPointerFromSite;
-  for (let i = 0; i < step; i++) {
-    const stepSite = stepPointer.value!.site;
-    stepPointer.value = getPointerFromSite(stepSite + 1) || getPointerFromSite(minSite.value);
-    await sleep(pointerRef.value!.$el);
+  if (step > 0) {
+    for (let i = 0; i < step; i++) {
+      const stepSite = stepPointer.value!.site;
+      stepPointer.value = getPointerFromSite(stepSite + 1) || getPointerFromSite(minSite.value);
+      await sleep(pointerRef.value!.$el);
+    }
+  } else {
+    for (let i = 0; i > step; i--) {
+      const stepSite = stepPointer.value!.site;
+      stepPointer.value = getPointerFromSite(stepSite - 1) || getPointerFromSite(maxSite.value);
+      await sleep(pointerRef.value!.$el);
+    }
   }
   currentPointer.value = stepPointer.value;
   isLooping.value = false;
@@ -96,12 +103,23 @@ const currentPointer = computed({
   set: (_v) => (site.value = _v?.site || 0),
 });
 const stepPointer = shallowRef(currentPointer.value);
+watch(site, (newSite) => plusStep(newSite - stepPointer.value!.site));
+
 onMounted(() => {
   roadRef.value?.initRoad();
   stepPointer.value = roadRef.value?.getPointerFromSite(minSite.value);
   currentPointer.value = stepPointer.value;
   isFinished.value = false;
 });
+
+const scrollToPoint = () => {
+  pointerRef.value?.$el.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+    inline: "center",
+  });
+};
+defineExpose({ scrollToPoint });
 </script>
 
 <template>

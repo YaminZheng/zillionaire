@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import Zillionaire, { Props as ZillionaireProps } from "../components/zillionaire/Zillionaire.vue";
 
 const { modelValue } = defineModels<{
@@ -17,7 +18,7 @@ const zillionaireProps: ZillionaireProps = {
     [_____, _____, _____, _____, __(4), _____, __(8), _____, _____, _____, _____, _____, _(32), _____, _(36), _____, _____, _____, _____, _____],
     [_____, _____, _____, _____, __(3), _____, __(9), _____, _____, _____, _____, _____, _(31), _____, _(37), _____, _____, _____, _____, _____],
     [_____, _____, __(0), __(1), __(2), _____, _(10), _____, _(20), _(21), _(22), _____, _(30), _____, _(38), _____, _____, _____, _____, _____],
-    [_____, _____, _____, _____, _____, _____, _(11), _____, _(19), _____, _(23), _____, _(29), _____, _(39), _(40), _(41), _(42), _(43), _(44)],
+    [_____, _____, _____, _____, _____, _____, _(11), _____, _(19), _____, _(23), _____, _(29), _____, _(39), _(40), _____, _____, _____, _____],
     [_____, _____, _____, _____, _____, _____, _(12), _____, _(18), _____, _(24), _____, _(28), _____, _____, _____, _____, _____, _____, _____],
     [_____, _____, _____, _____, _____, _____, _(13), _____, _(17), _____, _(25), _(26), _(27), _____, _____, _____, _____, _____, _____, _____],
     [_____, _____, _____, _____, _____, _____, _(14), _(15), _(16), _____, _____, _____, _____, _____, _____, _____, _____, _____, _____, _____],
@@ -32,11 +33,18 @@ const zillionaireProps: ZillionaireProps = {
   // 动画移动的速度 ms
   jumpInterval: 300,
 };
+
+
+const zillionaireRef = ref<InstanceType<typeof Zillionaire>>();
+const onClickOrigin = () => {
+  zillionaireRef.value.scrollToPoint()
+};
 </script>
 
 <template>
   <div class="box">
-    <Zillionaire v-model:site="modelValue" v-bind="zillionaireProps" />
+    <Zillionaire ref="zillionaireRef" v-model:site="modelValue" v-bind="zillionaireProps" />
+    <button style="position: absolute; right: 0" @click="onClickOrigin">回到原点</button>
   </div>
 </template>
 

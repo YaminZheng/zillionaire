@@ -8,13 +8,13 @@ const featchPrize = async () => {
 };
 
 const showPrize = (prize: any) => {
-  if (prize === 0) return alert('未中奖');
+  if (prize === 0) return alert("未中奖");
   blindBoxRef.value?.open(prize);
 };
 
 const currentSite = ref();
-watch(currentSite, async (site) => {
-  if (!site) return;
+watch(currentSite, async (site, oldSite) => {
+  if (!site || oldSite > site) return;
   const prize = await featchPrize();
   showPrize(prize);
 });
@@ -24,15 +24,18 @@ const blindBoxRef = ref<InstanceType<typeof BlindBox>>();
 
 <template>
   <!-- 大富翁 -->
-  <Zillionaire v-model="currentSite" />
+  <Zillionaire ref="zillionaireRef" v-model="currentSite" />
 
   <!-- 盲盒 -->
   <BlindBox ref="blindBoxRef" />
+
+  <button @click="currentSite -= 3">minus 3</button>
 </template>
 
 <style lang="scss">
 .box {
   width: 100vw;
   height: 100vh;
+  overflow-x: auto;
 }
 </style>
