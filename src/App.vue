@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import Zillionaire from "./pages/Zillionaire.vue";
-import BlindBox from "./pages/BlindBox.vue";
+import BlindBox from "./components/blind-box/BlindBox.vue";
 import { ref, watch } from "vue";
 
 const featchPrize = async () => {
-  return "谢谢参与";
+  return Math.floor(Math.random() * 2);
 };
 
 const showPrize = (prize: any) => {
-  alert(prize);
+  if (prize === 0) return;
+  console.log(prize)
+  blindBoxRef.value?.open(prize);
 };
 
 const currentSite = ref(1);
@@ -17,6 +19,8 @@ watch(currentSite, async (site) => {
   const prize = await featchPrize();
   showPrize(prize);
 });
+
+const blindBoxRef = ref<InstanceType<typeof BlindBox>>();
 </script>
 
 <template>
@@ -24,7 +28,7 @@ watch(currentSite, async (site) => {
   <Zillionaire v-model="currentSite" />
 
   <!-- 盲盒 -->
-  <BlindBox />
+  <BlindBox ref="blindBoxRef" />
 </template>
 
 <style lang="scss">

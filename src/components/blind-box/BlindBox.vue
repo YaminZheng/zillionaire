@@ -13,54 +13,39 @@ const useThrottle = <Args extends any[], R extends any>(fn: (...args: Args) => P
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-
-interface Props {
-  minCount?: number;
-  maxCount?: number;
-  disabled?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), { minCount: 1, maxCount: 6 });
+import { ref } from "vue";
 
 interface Emits {
-  (e: "plusStep", step: number): void;
+  (e: "close"): void;
 }
-
 const emit = defineEmits<Emits>();
 
-const isRotate = ref(true);
-const getSifterCount = useThrottle(async () => {
-  isRotate.value = true;
+const displayPrize = useThrottle(async (prize: number) => {
   // fetch from backend
-  return Math.floor(Math.random() * (props.maxCount - props.minCount + 1) + props.minCount);
+  isShowPrize.value = true;
+  console.log(prize);
 });
 
-const count = ref<number>(1);
 const isLoading = ref(false);
-const randomCount = async () => {
-  if (props.disabled || isLoading.value) return;
+const isShowPrize = ref(false);
+const open = async (prize: number) => {
+  if (isLoading.value) return;
   isLoading.value = true;
-  count.value = await getSifterCount();
-  isRotate.value = false;
+  await displayPrize(prize);
   isLoading.value = false;
-  return emit("plusStep", count.value);
 };
 
-const styleMap: { [K: number]: string } = {
-  1: "transform: rotate3d(0,0,0,90deg)",
-  2: "transform: rotate3d(0,1,0,90deg)",
-  3: "transform: rotate3d(0,1,0,-90deg)",
-  4: "transform: rotate3d(0,1,0,180deg)",
-  5: "transform: rotate3d(1,0,0,-90deg)",
-  6: "transform: rotate3d(1,0,0,90deg)",
+const close = () => {
+  isShowPrize.value = false;
+  emit("close");
 };
-const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.value]));
+
+defineExpose({ open });
 </script>
 
 <template>
-  <div class="sifter-box" @click="randomCount()">
-    <ul :class="{ rotate: isRotate }" :style="finalStyle">
+  <div class="sifter-box">
+    <ul class="rotate">
       <li class="left">？</li>
       <li class="right">？</li>
       <li class="front">？</li>
@@ -69,6 +54,8 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
       <li class="bottom">？</li>
     </ul>
   </div>
+
+  <div v-if="isShowPrize" class="model" @click="close">x</div>
 </template>
 
 <style lang="scss" scoped>
