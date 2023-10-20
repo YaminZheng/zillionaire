@@ -85,11 +85,11 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
 }
 
 .sifter-box {
-  padding: 30px;
   cursor: pointer;
+  padding: 20px;
 
   > ul {
-    $width: 80px;
+    $width: 60px;
     width: $width;
     height: $width;
     position: relative;

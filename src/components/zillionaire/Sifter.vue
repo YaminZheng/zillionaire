@@ -95,7 +95,7 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
   cursor: pointer;
 
   > ul {
-    $width: 80px;
+    $width: 50px;
     width: $width;
     height: $width;
     position: relative;
