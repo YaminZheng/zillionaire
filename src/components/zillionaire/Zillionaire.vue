@@ -4,6 +4,15 @@ export type RoadMap = Array<Array<number | null>>;
 export type RoadFormat = (el: El) => any;
 export { El };
 
+export interface Props {
+  roadMap: RoadMap;
+  roadMapFormat?: { [K: number]: RoadFormat };
+  isCanLoop?: boolean;
+  minSifter?: number;
+  maxSifter?: number;
+  jumpInterval?: number;
+}
+
 const sleep = (el: HTMLElement) => {
   return new Promise<void>((resove) => {
     const transitionend = () => {
@@ -32,14 +41,6 @@ import Road from "./Road.vue";
 import Pointer from "./Pointer.vue";
 import Sifter from "./Sifter.vue";
 
-interface Props {
-  roadMap: RoadMap;
-  roadMapFormat?: { [K: number]: RoadFormat };
-  isCanLoop?: boolean;
-  minSifter?: number;
-  maxSifter?: number;
-  jumpInterval?: number;
-}
 const props = withDefaults(defineProps<Props>(), {
   isCanLoop: false,
   minSifter: 1,
@@ -83,8 +84,8 @@ const plusStep = (step: number) => {
     loopPointer(step);
     finish();
   } else {
-    const nextSite = Math.min(currentPointer.value!.site + step, maxSite.value);
-    loopPointer(nextSite - currentPointer.value!.site);
+    const nextSite = Math.min(site.value + step, maxSite.value);
+    loopPointer(nextSite - site.value);
     if (nextSite === maxSite.value) finish();
   }
 };
@@ -97,8 +98,8 @@ const currentPointer = computed({
 const stepPointer = shallowRef(currentPointer.value);
 onMounted(() => {
   roadRef.value?.initRoad();
-  currentPointer.value = roadRef.value?.getPointerFromSite(minSite.value);
-  stepPointer.value = currentPointer.value;
+  stepPointer.value = roadRef.value?.getPointerFromSite(minSite.value);
+  currentPointer.value = stepPointer.value;
   isFinished.value = false;
 });
 </script>

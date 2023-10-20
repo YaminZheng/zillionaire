@@ -1,4 +1,13 @@
 <script lang="ts">
+export interface Props {
+  minCount?: number;
+  maxCount?: number;
+  disabled?: boolean;
+}
+export interface Emits {
+  (e: "plusStep", step: number): void;
+}
+
 const useThrottle = <Args extends any[], R extends any>(fn: (...args: Args) => Promise<R>, interval = 2000) => {
   return (...args: Args) => {
     return new Promise<R>(async (resolve) => {
@@ -15,18 +24,7 @@ const useThrottle = <Args extends any[], R extends any>(fn: (...args: Args) => P
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-interface Props {
-  minCount?: number;
-  maxCount?: number;
-  disabled?: boolean;
-}
-
 const props = withDefaults(defineProps<Props>(), { minCount: 1, maxCount: 6 });
-
-interface Emits {
-  (e: "plusStep", step: number): void;
-}
-
 const emit = defineEmits<Emits>();
 
 const isRotate = ref(false);
