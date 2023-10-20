@@ -1,12 +1,10 @@
 <script lang="ts">
-const useThrottle = <Args extends any[], R extends any>(fn: (...args: Args) => Promise<R>, interval = 2000) => {
+const useDelay = <Args extends any[], R extends any>(fn: (...args: Args) => Promise<R>, interval = 2000) => {
   return (...args: Args) => {
     return new Promise<R>(async (resolve) => {
-      const callTime = Date.now();
-      let result = await fn(...args);
-      setTimeout(() => {
-        resolve(result);
-      }, interval + callTime - Date.now());
+      setTimeout(async () => {
+        resolve(await fn(...args));
+      }, interval);
     });
   };
 };
@@ -20,18 +18,22 @@ interface Emits {
 }
 const emit = defineEmits<Emits>();
 
-const displayPrize = useThrottle(async (prize: number) => {
+const displayPrize = useDelay(async (prize: number) => {
   // fetch from backend
   isShowPrize.value = true;
   console.log(prize);
 });
 
+const isShowBlindBox = ref(false);
 const isLoading = ref(false);
 const isShowPrize = ref(false);
 const open = async (prize: number) => {
+  console.log(1);
   if (isLoading.value) return;
   isLoading.value = true;
+  isShowBlindBox.value = true;
   await displayPrize(prize);
+  isShowBlindBox.value = false;
   isLoading.value = false;
 };
 
@@ -44,7 +46,7 @@ defineExpose({ open });
 </script>
 
 <template>
-  <div class="sifter-box">
+  <div v-if="isShowBlindBox" class="sifter-box" @click="open(1)">
     <ul class="rotate">
       <li class="left">？</li>
       <li class="right">？</li>
@@ -55,7 +57,10 @@ defineExpose({ open });
     </ul>
   </div>
 
-  <div v-if="isShowPrize" class="model" @click="close">x</div>
+  <div v-if="isShowPrize" class="prize-modal">
+    <h5>恭喜获得奖品</h5>
+    <button @click="close">关闭</button>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -72,7 +77,9 @@ defineExpose({ open });
 }
 
 .sifter-box {
-  cursor: pointer;
+  position: fixed;
+  left: 50%;
+  top: 50%;
   padding: 20px;
 
   > ul {
@@ -128,5 +135,14 @@ defineExpose({ open });
       transform: translateZ(calc(#{$width} / -2)) rotateY(180deg);
     }
   }
+}
+
+.prize-modal {
+  width: 100px;
+  height: 100px;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  background-color: orange;
 }
 </style>

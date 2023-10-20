@@ -9,13 +9,12 @@ const featchPrize = async () => {
 
 const showPrize = (prize: any) => {
   if (prize === 0) return;
-  console.log(prize)
   blindBoxRef.value?.open(prize);
 };
 
-const currentSite = ref(1);
+const currentSite = ref();
 watch(currentSite, async (site) => {
-  console.log(site);
+  if (!site) return;
   const prize = await featchPrize();
   showPrize(prize);
 });
