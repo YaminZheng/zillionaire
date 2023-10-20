@@ -47,7 +47,7 @@ defineExpose({ open });
 
 <template>
   <div v-if="isShowBlindBox" class="sifter-box" @click="open(1)">
-    <ul class="rotate">
+    <ul>
       <li class="left">？</li>
       <li class="right">？</li>
       <li class="front">？</li>
@@ -80,19 +80,20 @@ defineExpose({ open });
   position: fixed;
   left: 50%;
   top: 50%;
+  transform: translate(-50%, -50%);
   padding: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 200px 20px yellow;
+  background-color: #ffff0078;
 
   > ul {
-    $width: 60px;
+    $width: 100px;
     width: $width;
     height: $width;
     position: relative;
     margin: 0;
     transform-style: preserve-3d;
-
-    &.rotate {
-      animation: rotate 2s linear infinite reverse;
-    }
+    animation: rotate 2s linear infinite reverse;
 
     > li {
       width: 100%;
@@ -140,9 +141,11 @@ defineExpose({ open });
 .prize-modal {
   width: 100px;
   height: 100px;
+  color: white;
   position: fixed;
   left: 50%;
   top: 50%;
-  background-color: orange;
+  background-color: orangered;
+  transform: translate(-50%, -50%);
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Zillionaire from "./pages/Zillionaire.vue";
+import Zillionaire from "./templates/Zillionaire.vue";
 import BlindBox from "./components/blind-box/BlindBox.vue";
 import { ref, watch } from "vue";
 
@@ -8,7 +8,7 @@ const featchPrize = async () => {
 };
 
 const showPrize = (prize: any) => {
-  if (prize === 0) return;
+  if (prize === 0) return alert('未中奖');
   blindBoxRef.value?.open(prize);
 };
 
