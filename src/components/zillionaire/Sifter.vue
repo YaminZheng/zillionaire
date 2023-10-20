@@ -37,10 +37,13 @@ const getSifterCount = useThrottle(async () => {
 });
 
 const count = ref<number>(1);
+const isLoading = ref(false);
 const randomCount = async () => {
-  if (props.disabled) return;
+  if (props.disabled || isLoading.value) return;
+  isLoading.value = true;
   count.value = await getSifterCount();
   isRotate.value = false;
+  isLoading.value = false;
   return emit("plusStep", count.value);
 };
 
@@ -118,6 +121,7 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
       box-shadow: 0 0 4px 1px white inset;
       font-size: 20px;
       font-weight: bold;
+      user-select: none;
     }
 
     .left {

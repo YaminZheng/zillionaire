@@ -82,11 +82,10 @@ defineExpose({ getPointerFromSite, initRoad: init });
   width: 100%;
   height: 100%;
   position: relative;
-  background-image: url(./WechatIMG40.jpg);
-  background-size: 100% 100%;
 
   .road-holder {
     position: absolute;
+    border: 1px solid;
   }
 }
 </style>

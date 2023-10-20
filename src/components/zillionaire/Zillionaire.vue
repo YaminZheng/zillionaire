@@ -27,7 +27,7 @@ const sleep = (el: HTMLElement) => {
 </script>
 
 <script setup lang="ts">
-import { ref, shallowRef, computed, onMounted } from "vue";
+import { ref, computed, onMounted, shallowRef } from "vue";
 import Road from "./Road.vue";
 import Pointer from "./Pointer.vue";
 import Sifter from "./Sifter.vue";
@@ -40,7 +40,6 @@ interface Props {
   maxSifter?: number;
   jumpInterval?: number;
 }
-
 const props = withDefaults(defineProps<Props>(), {
   isCanLoop: false,
   minSifter: 1,
@@ -48,6 +47,10 @@ const props = withDefaults(defineProps<Props>(), {
   jumpInterval: 300,
   roadMapFormat: () => ({}),
 });
+
+const { site } = defineModels<{
+  site: number;
+}>();
 
 const maxSite = computed(() => Math.max(...(props.roadMap.flat().filter((n) => n !== null) as Array<number>)));
 const minSite = computed(() => Math.min(...(props.roadMap.flat().filter((n) => n !== null) as Array<number>)));
@@ -66,10 +69,11 @@ const loopPointer = async (step: number) => {
   isLooping.value = true;
   const getPointerFromSite = roadRef.value!.getPointerFromSite;
   for (let i = 0; i < step; i++) {
-    const currentSite = currentPointer.value!.site;
-    currentPointer.value = getPointerFromSite(currentSite + 1) || getPointerFromSite(minSite.value);
+    const stepSite = stepPointer.value!.site;
+    stepPointer.value = getPointerFromSite(stepSite + 1) || getPointerFromSite(minSite.value);
     await sleep(pointerRef.value!.$el);
   }
+  currentPointer.value = stepPointer.value;
   isLooping.value = false;
 };
 
@@ -86,10 +90,15 @@ const plusStep = (step: number) => {
 };
 
 const roadRef = ref<InstanceType<typeof Road>>();
-const currentPointer = shallowRef<El>();
+const currentPointer = computed({
+  get: () => roadRef.value?.getPointerFromSite(site.value),
+  set: (_v) => (site.value = _v?.site || 0),
+});
+const stepPointer = shallowRef(currentPointer.value);
 onMounted(() => {
   roadRef.value?.initRoad();
   currentPointer.value = roadRef.value?.getPointerFromSite(minSite.value);
+  stepPointer.value = currentPointer.value;
   isFinished.value = false;
 });
 </script>
@@ -97,7 +106,7 @@ onMounted(() => {
 <template>
   <Road ref="roadRef" :roadMap="roadMap" :roadMapFormat="roadMapFormat" :initSite="minSite">
     <template #pointer>
-      <Pointer ref="pointerRef" class="pointer-container" :pointer="currentPointer" />
+      <Pointer ref="pointerRef" class="pointer-container" :pointer="stepPointer" />
     </template>
     <template #sifter>
       <Sifter
