@@ -3,19 +3,20 @@ import Zillionaire from "./templates/Zillionaire.vue";
 import BlindBox from "./components/blind-box/BlindBox.vue";
 import { ref, watch } from "vue";
 
-const featchPrize = async () => {
+const featchPrize = async (index: number) => {
+  console.log(index);
   return Math.floor(Math.random() * 2);
 };
 
 const showPrize = (prize: any) => {
-  if (prize === 0) return alert("未中奖");
+  if (prize === 0) return console.log("未中奖");
   blindBoxRef.value?.open(prize);
 };
 
-const currentSite = ref();
-watch(currentSite, async (site, oldSite) => {
-  if (!site || oldSite > site) return;
-  const prize = await featchPrize();
+const currentIndex = ref(0);
+watch(currentIndex, async (index) => {
+  if (!index) return;
+  const prize = await featchPrize(index);
   showPrize(prize);
 });
 
@@ -24,12 +25,12 @@ const blindBoxRef = ref<InstanceType<typeof BlindBox>>();
 
 <template>
   <!-- 大富翁 -->
-  <Zillionaire ref="zillionaireRef" v-model="currentSite" />
+  <Zillionaire ref="zillionaireRef" v-model="currentIndex" />
 
   <!-- 盲盒 -->
   <BlindBox ref="blindBoxRef" />
 
-  <button @click="currentSite -= 3">minus 3</button>
+  <button v-if="currentIndex" @click="currentIndex -= 3">minus 3</button>
 </template>
 
 <style lang="scss">

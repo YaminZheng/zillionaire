@@ -28,7 +28,6 @@ const isShowBlindBox = ref(false);
 const isLoading = ref(false);
 const isShowPrize = ref(false);
 const open = async (prize: number) => {
-  console.log(1);
   if (isLoading.value) return;
   isLoading.value = true;
   isShowBlindBox.value = true;

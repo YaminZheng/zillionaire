@@ -16,11 +16,9 @@ const useThrottle = <Args extends any[], R extends any>(fn: (...args: Args) => P
 import { computed, ref } from "vue";
 
 interface Props {
-  minCount?: number;
-  maxCount?: number;
   disabled?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), { minCount: 1, maxCount: 6 });
+const props = defineProps<Props>();
 
 interface Emits {
   (e: "plusStep", step: number): void;
@@ -31,7 +29,7 @@ const isRotate = ref(false);
 const getSifterCount = useThrottle(async () => {
   isRotate.value = true;
   // fetch from backend
-  return Math.floor(Math.random() * (props.maxCount - props.minCount + 1) + props.minCount);
+  return Math.floor(Math.random() * 6 + 1);
 });
 
 const count = ref<number>(1);
@@ -91,6 +89,7 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
 .sifter-box {
   padding: 30px;
   cursor: pointer;
+  transform-style: preserve-3d;
 
   > ul {
     $width: 50px;

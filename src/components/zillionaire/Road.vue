@@ -1,72 +1,69 @@
 <script lang="ts">
-export type El = HTMLDivElement & { site: number };
+export type El = HTMLDivElement & { serialId: number };
+export interface RoadItem {
+  width: string;
+  height: string;
+  top: string;
+  left: string;
+}
+export type RoadMap = Array<RoadItem>;
 </script>
 
 <script setup lang="ts">
 import { ref, shallowRef } from "vue";
-import type { RoadMap, RoadFormat } from "./Zillionaire.vue";
 
 interface Props {
   roadMap: RoadMap;
-  roadMapFormat: { [K: number]: RoadFormat };
 }
 const props = defineProps<Props>();
 
-const computeWidth = (colNum: number) => 100 / colNum;
-const computeHeight = (rowNum: number) => 100 / rowNum;
-
-const getCreateHolder = (colNum: number, rowNum: number) => {
-  const width = computeWidth(colNum);
-  const height = computeHeight(rowNum);
-  return (colIndex: number, rowIndex: number) => {
-    const el = document.createElement("div") as El;
-    el.style.width = `${width}%`;
-    el.style.height = `${height}%`;
-    el.style.left = `${width * colIndex}%`;
-    el.style.top = `${height * rowIndex}%`;
-    return el;
-  };
+const createPointerBroadsite = (el: El) => {
+  el.style.transformStyle = "preserve-3d";
+  const site1 = document.createElement("div");
+  site1.style.cssText = `
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 20%; 
+    height: 100%; 
+    transform-origin: left; 
+    transform: rotateY(90deg);
+    background-color: rgba(255,255,255,0.2);
+  `;
+  el.appendChild(site1);
 };
 
-const injectStyle = (el: El, formatFn?: RoadFormat) => {
-  el.classList.add("road-holder");
-  if (!formatFn) return;
-  formatFn(el);
+const createPointer = (roadItem: RoadItem) => {
+  const pointer = document.createElement("div") as El;
+  pointer.style.width = roadItem.width;
+  pointer.style.height = roadItem.height;
+  pointer.style.top = roadItem.top;
+  pointer.style.left = roadItem.left;
+  pointer.style.transform = "translate(-50%, -50%)";
+  pointer.classList.add("road-holder");
+  // createPointerBroadsite(pointer);
+  return pointer;
 };
-
-const getRoadColNum = (roadMap: RoadMap) => roadMap[0]?.length || 3;
-const getRoadRowNum = (roadMap: RoadMap) => roadMap.length || 3;
 
 const generateRoad = (roadMap: RoadMap) => {
-  const elList = [] as Array<El>;
-  const createHolder = getCreateHolder(getRoadColNum(roadMap), getRoadRowNum(roadMap));
-  roadMap.forEach((cols, rowIndex) => {
-    cols.forEach((row, colIndex) => {
-      if (row !== null) {
-        const el = createHolder(colIndex, rowIndex);
-        el.site = row;
-        injectStyle(el, props.roadMapFormat[row]);
-        elList.push(el);
-      }
-    });
+  const pointerMap = {} as Record<string, El>;
+  roadMap.forEach((roadItem, index) => {
+    const pointer = createPointer(roadItem);
+    pointer.serialId = index;
+    pointerMap[index] = pointer;
   });
-  return elList;
+  return pointerMap;
 };
 
 const roadBoxRef = ref<HTMLDivElement | null>(null);
 const pointerMap = shallowRef<Record<string, El>>({});
 const init = () => {
-  const pointerList = generateRoad(props.roadMap);
-  pointerMap.value = pointerList.reduce((map, pointer) => {
-    map[pointer.site] = pointer;
-    return map;
-  }, {} as Record<string, El>);
-
+  pointerMap.value = generateRoad(props.roadMap);
   const _roadBoxRef = roadBoxRef.value!;
-  pointerList.forEach((el) => _roadBoxRef.appendChild(el));
+  Object.values(pointerMap.value).forEach((el) => _roadBoxRef.appendChild(el));
 };
 
-const getPointerFromSite = (site: number) => pointerMap.value[site];
+const getPointerFromSite = (serialId: number) => pointerMap.value[serialId];
 defineExpose({ getPointerFromSite, initRoad: init });
 </script>
 
@@ -77,17 +74,21 @@ defineExpose({ getPointerFromSite, initRoad: init });
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .road-box {
-  width: 100%;
-  height: 100%;
+  width: 140%;
+  aspect-ratio: 1/1;
   min-width: 1000px;
   min-height: 400px;
   position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(50deg) rotateY(9deg) rotateZ(-50deg) translateX(17%) translateY(-37%);
+  // transform: rotateX(50deg) rotateY(9deg) rotateZ(-50deg) translateX(17%) translateY(-37%);
 
-  .road-holder {
+  :deep(.road-holder) {
     position: absolute;
     border: 1px solid;
+    border-radius: 20px;
   }
 }
 </style>

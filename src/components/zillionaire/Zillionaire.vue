@@ -1,8 +1,24 @@
 <script lang="ts">
+import { ref, Ref } from "vue";
 import type { El } from "./Road.vue";
-export type RoadMap = Array<Array<number | null>>;
-export type RoadFormat = (el: El) => any;
-export { El };
+import type { RoadItem, RoadMap } from "./Road.vue";
+export { El, RoadItem, RoadMap };
+
+const useLoadingEvent = <Args extends any[], R>(
+  fn: (...args: Args) => Promise<R>
+): [(...args: Args) => Promise<R | undefined>, Ref<boolean>] => {
+  const loading = ref(false);
+  const _fn = async (...args: Args) => {
+    if (loading.value) return;
+    try {
+      loading.value = true;
+      return await fn(...args);
+    } finally {
+      loading.value = false;
+    }
+  };
+  return [_fn, loading];
+};
 
 const sleep = (el: HTMLElement) => {
   return new Promise<void>((resove) => {
@@ -27,33 +43,24 @@ const sleep = (el: HTMLElement) => {
 </script>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, shallowRef, watch } from "vue";
+import { computed, onMounted, shallowRef, watch } from "vue";
 import Road from "./Road.vue";
 import Pointer from "./Pointer.vue";
 import Sifter from "./Sifter.vue";
 
 export interface Props {
   roadMap: RoadMap;
-  roadMapFormat?: { [K: number]: RoadFormat };
-  isCanLoop?: boolean;
-  minSifter?: number;
-  maxSifter?: number;
   jumpInterval?: number;
 }
 const props = withDefaults(defineProps<Props>(), {
-  isCanLoop: false,
-  minSifter: 1,
-  maxSifter: 6,
   jumpInterval: 300,
-  roadMapFormat: () => ({}),
 });
 
-const { site } = defineModels<{
-  site: number;
+const { modelValue } = defineModels<{
+  modelValue: number;
 }>();
 
-const maxSite = computed(() => Math.max(...(props.roadMap.flat().filter((n) => n !== null) as Array<number>)));
-const minSite = computed(() => Math.min(...(props.roadMap.flat().filter((n) => n !== null) as Array<number>)));
+const maxSerialId = computed(() => props.roadMap.length - 1);
 const transition = computed(() => `all ${props.jumpInterval}ms ease`);
 
 const isFinished = ref(false);
@@ -63,52 +70,47 @@ const finish = () => {
   console.log("success");
 };
 
-const pointerRef = ref<InstanceType<typeof Pointer>>();
-const isLooping = ref(false);
-const loopPointer = async (step: number) => {
-  isLooping.value = true;
+const increase = async (step: number) => {
   const getPointerFromSite = roadRef.value!.getPointerFromSite;
-  if (step > 0) {
-    for (let i = 0; i < step; i++) {
-      const stepSite = stepPointer.value!.site;
-      stepPointer.value = getPointerFromSite(stepSite + 1) || getPointerFromSite(minSite.value);
-      await sleep(pointerRef.value!.$el);
-    }
-  } else {
-    for (let i = 0; i > step; i--) {
-      const stepSite = stepPointer.value!.site;
-      stepPointer.value = getPointerFromSite(stepSite - 1) || getPointerFromSite(maxSite.value);
-      await sleep(pointerRef.value!.$el);
-    }
+  const _pointer = pointerRef.value!.$el;
+  for (let i = 0; i < step; i++) {
+    const stepSerialId = stepPointer.value!.serialId;
+    stepPointer.value = getPointerFromSite(Math.min(stepSerialId + 1, maxSerialId.value));
+    await sleep(_pointer);
   }
-  currentPointer.value = stepPointer.value;
-  isLooping.value = false;
 };
+
+const decrease = async (step: number) => {
+  const getPointerFromSite = roadRef.value!.getPointerFromSite;
+  const _pointer = pointerRef.value!.$el;
+  for (let i = 0; i > step; i--) {
+    const stepSerialId = stepPointer.value!.serialId;
+    stepPointer.value = getPointerFromSite(Math.max(stepSerialId - 1, 0));
+    await sleep(_pointer);
+  }
+};
+
+const pointerRef = ref<InstanceType<typeof Pointer>>();
+const [loopPointer, isLooping] = useLoadingEvent(async (step: number) => {
+  step > 0 ? await increase(step) : await decrease(step);
+  modelValue.value = stepPointer.value!.serialId;
+});
 
 const plusStep = (step: number) => {
   if (isFinished.value || isLooping.value) return;
-  if (props.isCanLoop) {
-    loopPointer(step);
-    finish();
-  } else {
-    const nextSite = Math.min(site.value + step, maxSite.value);
-    loopPointer(nextSite - site.value);
-    if (nextSite === maxSite.value) finish();
-  }
+  const nextSite = Math.min(modelValue.value + step, maxSerialId.value);
+  loopPointer(nextSite - modelValue.value);
+  if (nextSite === maxSerialId.value) finish();
 };
 
 const roadRef = ref<InstanceType<typeof Road>>();
-const currentPointer = computed({
-  get: () => roadRef.value?.getPointerFromSite(site.value),
-  set: (_v) => (site.value = _v?.site || 0),
-});
-const stepPointer = shallowRef(currentPointer.value);
-watch(site, (newSite) => plusStep(newSite - stepPointer.value!.site));
+const stepPointer = shallowRef<El>();
+watch(modelValue, (serialId) => plusStep(serialId - stepPointer.value!.serialId));
 
 onMounted(() => {
   roadRef.value?.initRoad();
-  stepPointer.value = roadRef.value?.getPointerFromSite(minSite.value);
-  currentPointer.value = stepPointer.value;
+  const getPointerFromSite = roadRef.value!.getPointerFromSite;
+  stepPointer.value = getPointerFromSite(modelValue.value);
   isFinished.value = false;
 });
 
@@ -123,23 +125,27 @@ defineExpose({ scrollToPoint });
 </script>
 
 <template>
-  <Road ref="roadRef" :roadMap="roadMap" :roadMapFormat="roadMapFormat" :initSite="minSite">
-    <template #pointer>
-      <Pointer ref="pointerRef" class="pointer-container" :pointer="stepPointer" />
-    </template>
-    <template #sifter>
-      <Sifter
-        class="sifter-container"
-        :minCount="minSifter"
-        :maxCount="maxSifter"
-        :disabled="isLooping || isFinished"
-        @plusStep="plusStep"
-      />
-    </template>
-  </Road>
+  <div class="zillionaire-box">
+    <Road ref="roadRef" :roadMap="roadMap">
+      <template #pointer>
+        <Pointer ref="pointerRef" class="pointer-container" :pointer="stepPointer" />
+      </template>
+      <template #sifter>
+        <Sifter class="sifter-container" :disabled="isLooping || isFinished" @plusStep="plusStep" />
+      </template>
+    </Road>
+  </div>
 </template>
 
 <style lang="scss" scoped>
+.zillionaire-box {
+  width: 100%;
+  aspect-ratio: 2000/1080;
+  overflow: hidden;
+  background-image: url(./background.jpg);
+  background-size: 100% 100%;
+}
+
 .pointer-container {
   background-color: red;
   position: absolute;
