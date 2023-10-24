@@ -10,7 +10,7 @@ const featchPrize = async (index: number) => {
 
 const showPrize = (prize: any) => {
   if (prize === 0) return console.log("未中奖");
-  blindBoxRef.value?.open(prize);
+  // blindBoxRef.value?.open(prize);
 };
 
 const currentIndex = ref(0);
@@ -29,14 +29,11 @@ const blindBoxRef = ref<InstanceType<typeof BlindBox>>();
 
   <!-- 盲盒 -->
   <BlindBox ref="blindBoxRef" />
-
-  <button v-if="currentIndex" @click="currentIndex -= 3">minus 3</button>
 </template>
 
 <style lang="scss">
 .box {
   width: 100vw;
-  height: 100vh;
-  overflow-x: auto;
+  overflow-y: auto;
 }
 </style>

@@ -57,12 +57,12 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
 <template>
   <div class="sifter-box" @click="randomCount()">
     <ul :class="{ rotate: isRotate }" :style="finalStyle">
-      <li class="left">2</li>
-      <li class="right">3</li>
-      <li class="front">1</li>
-      <li class="behind">4</li>
-      <li class="top">5</li>
-      <li class="bottom">6</li>
+      <li class="left" value="2"></li>
+      <li class="right" value="3"></li>
+      <li class="front" value="1"></li>
+      <li class="behind" value="4"></li>
+      <li class="top" value="5"></li>
+      <li class="bottom" value="6"></li>
     </ul>
   </div>
 </template>
@@ -110,15 +110,33 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
       position: absolute;
       left: 0;
       top: 0;
-      background-color: black;
       color: white;
       list-style: none;
       text-align: center;
       line-height: $width;
-      box-shadow: 0 0 4px 1px white inset;
       font-size: 20px;
       font-weight: bold;
       user-select: none;
+      background-size: 100%;
+
+      &[value="1"] {
+        background-image: url(./sifter/1.png);
+      }
+      &[value="2"] {
+        background-image: url(./sifter/2.png);
+      }
+      &[value="3"] {
+        background-image: url(./sifter/3.png);
+      }
+      &[value="4"] {
+        background-image: url(./sifter/4.png);
+      }
+      &[value="5"] {
+        background-image: url(./sifter/5.png);
+      }
+      &[value="6"] {
+        background-image: url(./sifter/6.png);
+      }
     }
 
     .left {

@@ -1,10 +1,12 @@
 <script lang="ts">
-export type El = HTMLDivElement & { serialId: number };
+export type El = HTMLDivElement & { serialId: number; rowIndex: number; colIndex: number };
 export interface RoadItem {
   width: string;
   height: string;
   top: string;
   left: string;
+  rowIndex: number;
+  colIndex: number;
 }
 export type RoadMap = Array<RoadItem>;
 </script>
@@ -17,22 +19,6 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const createPointerBroadsite = (el: El) => {
-  el.style.transformStyle = "preserve-3d";
-  const site1 = document.createElement("div");
-  site1.style.cssText = `
-    position: absolute; 
-    top: 0;
-    left: 0;
-    width: 20%; 
-    height: 100%; 
-    transform-origin: left; 
-    transform: rotateY(90deg);
-    background-color: rgba(255,255,255,0.2);
-  `;
-  el.appendChild(site1);
-};
-
 const createPointer = (roadItem: RoadItem) => {
   const pointer = document.createElement("div") as El;
   pointer.style.width = roadItem.width;
@@ -41,7 +27,6 @@ const createPointer = (roadItem: RoadItem) => {
   pointer.style.left = roadItem.left;
   pointer.style.transform = "translate(-50%, -50%)";
   pointer.classList.add("road-holder");
-  // createPointerBroadsite(pointer);
   return pointer;
 };
 
@@ -50,6 +35,8 @@ const generateRoad = (roadMap: RoadMap) => {
   roadMap.forEach((roadItem, index) => {
     const pointer = createPointer(roadItem);
     pointer.serialId = index;
+    pointer.rowIndex = roadItem.rowIndex
+    pointer.colIndex = roadItem.colIndex;
     pointerMap[index] = pointer;
   });
   return pointerMap;
@@ -80,15 +67,16 @@ defineExpose({ getPointerFromSite, initRoad: init });
   aspect-ratio: 1/1;
   min-width: 1000px;
   min-height: 400px;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   transform-style: preserve-3d;
   transform: rotateX(50deg) rotateY(9deg) rotateZ(-50deg) translateX(17%) translateY(-37%);
-  // transform: rotateX(50deg) rotateY(9deg) rotateZ(-50deg) translateX(17%) translateY(-37%);
+  transform: rotateX(50deg) rotateY(9deg) rotateZ(-50deg) translateX(17%) translateY(-37%);
 
   :deep(.road-holder) {
     position: absolute;
-    border: 1px solid;
-    border-radius: 20px;
+    // border: 1px solid;
   }
 }
 </style>

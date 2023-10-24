@@ -61,7 +61,6 @@ const { modelValue } = defineModels<{
 }>();
 
 const maxSerialId = computed(() => props.roadMap.length - 1);
-const transition = computed(() => `all ${props.jumpInterval}ms ease`);
 
 const isFinished = ref(false);
 const finish = () => {
@@ -114,26 +113,27 @@ onMounted(() => {
   isFinished.value = false;
 });
 
-const scrollToPoint = () => {
-  pointerRef.value?.$el.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-    inline: "center",
-  });
+const getPointerSite = () => {
+  return (pointerRef.value?.$el as HTMLElement).getBoundingClientRect();
 };
-defineExpose({ scrollToPoint });
+defineExpose({ getPointerSite });
 </script>
 
 <template>
   <div class="zillionaire-box">
     <Road ref="roadRef" :roadMap="roadMap">
       <template #pointer>
-        <Pointer ref="pointerRef" class="pointer-container" :pointer="stepPointer" />
-      </template>
-      <template #sifter>
-        <Sifter class="sifter-container" :disabled="isLooping || isFinished" @plusStep="plusStep" />
+        <Pointer
+          ref="pointerRef"
+          class="pointer-container"
+          :pointer="stepPointer"
+          :nextPointer="roadRef?.getPointerFromSite(modelValue + 1)"
+          :interval="jumpInterval"
+          :isRunning="isLooping"
+        />
       </template>
     </Road>
+    <Sifter class="sifter-container" :disabled="isLooping || isFinished" @plusStep="plusStep" />
   </div>
 </template>
 
@@ -141,15 +141,12 @@ defineExpose({ scrollToPoint });
 .zillionaire-box {
   width: 100%;
   aspect-ratio: 2000/1080;
+  border: 10px solid;
   overflow: hidden;
   background-image: url(./background.jpg);
-  background-size: 100% 100%;
-}
-
-.pointer-container {
-  background-color: red;
+  background-size: 100% auto;
+  background-position: center;
   position: absolute;
-  transition: v-bind(transition);
 }
 
 .sifter-container {
