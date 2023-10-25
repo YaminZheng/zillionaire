@@ -1,19 +1,6 @@
-<script lang="ts">
-const useThrottle = <Args extends any[], R extends any>(fn: (...args: Args) => Promise<R>, interval = 2000) => {
-  return (...args: Args) => {
-    return new Promise<R>(async (resolve) => {
-      const callTime = Date.now();
-      let result = await fn(...args);
-      setTimeout(() => {
-        resolve(result);
-      }, interval + callTime - Date.now());
-    });
-  };
-};
-</script>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { loadImage, useThrottle } from "./utils";
 
 interface Props {
   disabled?: boolean;
@@ -52,6 +39,18 @@ const styleMap: { [K: number]: string } = {
   6: "transform: rotate3d(1,0,0,90deg)",
 };
 const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.value]));
+
+const init = async () => {
+  await Promise.all([
+    loadImage((await import("./sifter/1.png")).default),
+    loadImage((await import("./sifter/2.png")).default),
+    loadImage((await import("./sifter/3.png")).default),
+    loadImage((await import("./sifter/4.png")).default),
+    loadImage((await import("./sifter/5.png")).default),
+    loadImage((await import("./sifter/6.png")).default),
+  ]);
+};
+defineExpose({ initSifter: init });
 </script>
 
 <template>
@@ -100,7 +99,7 @@ const finalStyle = computed(() => (isRotate.value ? void 0 : styleMap[count.valu
     transform-style: preserve-3d;
 
     &.rotate {
-      animation: rotate 0.6s linear infinite reverse;
+      animation: rotate 0.3s linear infinite reverse;
     }
 
     > li {

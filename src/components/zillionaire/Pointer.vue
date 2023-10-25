@@ -1,26 +1,13 @@
 <script lang="ts">
-import { watch, ref, computed } from "vue";
 import type { El } from "./Road.vue";
-
-!(async () => {
-  new Image().src = (await import("./person/left-top-1.png")).default;
-  new Image().src = (await import("./person/left-top-2.png")).default;
-  new Image().src = (await import("./person/left-top-3.png")).default;
-  new Image().src = (await import("./person/left-bottom-1.png")).default;
-  new Image().src = (await import("./person/left-bottom-2.png")).default;
-  new Image().src = (await import("./person/left-bottom-3.png")).default;
-  new Image().src = (await import("./person/right-top-3.png")).default;
-  new Image().src = (await import("./person/right-top-3.png")).default;
-  new Image().src = (await import("./person/right-top-3.png")).default;
-  new Image().src = (await import("./person/right-bottom-3.png")).default;
-  new Image().src = (await import("./person/right-bottom-3.png")).default;
-  new Image().src = (await import("./person/right-bottom-3.png")).default;
-})();
 
 export type Orientation = "right-bottom" | "right-top" | "left-bottom" | "left-top";
 </script>
 
 <script setup lang="ts">
+import { watch, ref, computed } from "vue";
+import { loadImage } from "./utils";
+
 interface Props {
   pointer?: El;
   nextPointer?: El;
@@ -59,6 +46,24 @@ watch(
 const finishOrientation = computed(() =>
   props.isRunning ? void 0 : props.pointer && props.nextPointer && getOrientation(props.nextPointer, props.pointer)
 );
+
+const init = async () => {
+  await Promise.all([
+    loadImage((await import("./person/left-top-1.png")).default),
+    loadImage((await import("./person/left-top-2.png")).default),
+    loadImage((await import("./person/left-top-3.png")).default),
+    loadImage((await import("./person/left-bottom-1.png")).default),
+    loadImage((await import("./person/left-bottom-2.png")).default),
+    loadImage((await import("./person/left-bottom-3.png")).default),
+    loadImage((await import("./person/right-top-3.png")).default),
+    loadImage((await import("./person/right-top-3.png")).default),
+    loadImage((await import("./person/right-top-3.png")).default),
+    loadImage((await import("./person/right-bottom-3.png")).default),
+    loadImage((await import("./person/right-bottom-3.png")).default),
+    loadImage((await import("./person/right-bottom-3.png")).default),
+  ]);
+};
+defineExpose({ initPointer: init });
 </script>
 
 <template>

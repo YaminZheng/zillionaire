@@ -1,49 +1,12 @@
 <script lang="ts">
-import { ref, Ref } from "vue";
 import type { El } from "./Road.vue";
 import type { RoadItem, RoadMap } from "./Road.vue";
 export { El, RoadItem, RoadMap };
-
-const useLoadingEvent = <Args extends any[], R>(
-  fn: (...args: Args) => Promise<R>
-): [(...args: Args) => Promise<R | undefined>, Ref<boolean>] => {
-  const loading = ref(false);
-  const _fn = async (...args: Args) => {
-    if (loading.value) return;
-    try {
-      loading.value = true;
-      return await fn(...args);
-    } finally {
-      loading.value = false;
-    }
-  };
-  return [_fn, loading];
-};
-
-const sleep = (el: HTMLElement) => {
-  return new Promise<void>((resove) => {
-    const transitionend = () => {
-      resove();
-      el.removeEventListener("transitionend", transitionend);
-      el.removeEventListener("transitionstart", transitionstart);
-    };
-    const transitioncancel = () => {
-      resove();
-      el.removeEventListener("transitioncancel", transitioncancel);
-      el.removeEventListener("transitionstart", transitionstart);
-    };
-    const transitionstart = () => {
-      el.addEventListener("transitionend", transitionend);
-      el.addEventListener("transitioncancel", transitioncancel);
-    };
-
-    el.addEventListener("transitionstart", transitionstart);
-  });
-};
 </script>
 
 <script setup lang="ts">
-import { computed, onMounted, shallowRef, watch } from "vue";
+import { computed, onMounted, shallowRef, watch, ref } from "vue";
+import { waitAnimationEnd, useLoadingEvent } from "./utils";
 import Road from "./Road.vue";
 import Pointer from "./Pointer.vue";
 import Sifter from "./Sifter.vue";
@@ -75,7 +38,7 @@ const increase = async (step: number) => {
   for (let i = 0; i < step; i++) {
     const stepSerialId = stepPointer.value!.serialId;
     stepPointer.value = getPointerFromSite(Math.min(stepSerialId + 1, maxSerialId.value));
-    await sleep(_pointer);
+    await waitAnimationEnd(_pointer);
   }
 };
 
@@ -85,7 +48,7 @@ const decrease = async (step: number) => {
   for (let i = 0; i > step; i--) {
     const stepSerialId = stepPointer.value!.serialId;
     stepPointer.value = getPointerFromSite(Math.max(stepSerialId - 1, 0));
-    await sleep(_pointer);
+    await waitAnimationEnd(_pointer);
   }
 };
 
@@ -106,8 +69,17 @@ const roadRef = ref<InstanceType<typeof Road>>();
 const stepPointer = shallowRef<El>();
 watch(modelValue, (serialId) => plusStep(serialId - stepPointer.value!.serialId));
 
+const sifterRef = ref<InstanceType<typeof Sifter>>();
+
+const isInitialized = ref(false);
+const [initZillinaire] = useLoadingEvent(async () => {
+  if (isInitialized.value) return;
+  await Promise.all([roadRef.value?.initRoad(), pointerRef.value?.initPointer(), sifterRef.value?.initSifter()]);
+  isInitialized.value = true;
+});
+
 onMounted(() => {
-  roadRef.value?.initRoad();
+  initZillinaire();
   const getPointerFromSite = roadRef.value!.getPointerFromSite;
   stepPointer.value = getPointerFromSite(modelValue.value);
   isFinished.value = false;
@@ -116,7 +88,7 @@ onMounted(() => {
 const getPointerSite = () => {
   return (pointerRef.value?.$el as HTMLElement).getBoundingClientRect();
 };
-defineExpose({ getPointerSite });
+defineExpose({ getPointerSite, isInitialized });
 </script>
 
 <template>
@@ -133,7 +105,7 @@ defineExpose({ getPointerSite });
         />
       </template>
     </Road>
-    <Sifter class="sifter-container" :disabled="isLooping || isFinished" @plusStep="plusStep" />
+    <Sifter ref="sifterRef" class="sifter-container" :disabled="isLooping || isFinished" @plusStep="plusStep" />
   </div>
 </template>
 
@@ -141,7 +113,6 @@ defineExpose({ getPointerSite });
 .zillionaire-box {
   width: 100%;
   aspect-ratio: 2000/1080;
-  border: 10px solid;
   overflow: hidden;
   background-image: url(./background.jpg);
   background-size: 100% auto;
@@ -152,7 +123,7 @@ defineExpose({ getPointerSite });
 .sifter-container {
   z-index: 9;
   position: absolute;
-  bottom: 0;
+  bottom: 10%;
   left: 50%;
   transform: translateX(-100%);
 }
