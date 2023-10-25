@@ -70,8 +70,6 @@ const roadMap: RoadMap = (
   ] as Array<[number, number]>
 ).map((args) => computeSite(...args));
 
-console.log(roadMap);
-
 const pointerIndex = computed({
   get: () => modelValue.value,
   set: (_v) => (modelValue.value = _v),
@@ -80,34 +78,13 @@ const pointerIndex = computed({
 const zillionaireRef = ref<InstanceType<typeof Zillionaire>>();
 const zillionaireBoxRef = ref<HTMLDivElement>();
 const onClickOrigin = () => {
-  const rect = zillionaireRef.value!.getPointerSite();
-  zillionaireBoxRef.value?.scrollTo({
-    top: rect.top,
-    behavior: "smooth",
-  });
+  zillionaireRef.value!.resetOrigin();
 };
 </script>
 
 <template>
-  <div class="box" ref="zillionaireBoxRef">
+  <div class="relative w-full overflow-hidden overflow-x-auto" ref="zillionaireBoxRef">
     <Zillionaire ref="zillionaireRef" v-model="pointerIndex" :roadMap="roadMap" :jumpInterval="500" />
-    <button class="origin" @click="onClickOrigin">回到原点</button>
+    <PrimaryButton class="absolute right-20px top-20px z-999" @click="onClickOrigin">回到原点</PrimaryButton>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.box {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  .origin {
-    position: absolute;
-    right: 20px;
-    top: 20px;
-    z-index: 999;
-  }
-}
-</style>

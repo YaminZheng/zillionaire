@@ -20,6 +20,16 @@ export const useThrottle = <Args extends any[], R extends any>(fn: (...args: Arg
   };
 };
 
+export const useDelay = <Args extends any[], R extends any>(fn: (...args: Args) => Promise<R>, interval = 2500) => {
+  return (...args: Args) => {
+    return new Promise<R>(async (resolve) => {
+      setTimeout(async () => {
+        resolve(await fn(...args));
+      }, interval);
+    });
+  };
+};
+
 export const waitAnimationEnd = (el: HTMLElement) => {
   return new Promise<void>((resove) => {
     const transitionend = () => {
@@ -56,3 +66,7 @@ export const useLoadingEvent = <Args extends any[], R>(
   };
   return [_fn, loading];
 };
+
+export function sleep(time: number = 1500): Promise<void> {
+  return new Promise((resolve) => globalThis.setTimeout(() => resolve(), time));
+}

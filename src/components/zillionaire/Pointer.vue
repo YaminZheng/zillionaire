@@ -6,7 +6,7 @@ export type Orientation = "right-bottom" | "right-top" | "left-bottom" | "left-t
 
 <script setup lang="ts">
 import { watch, ref, computed } from "vue";
-import { loadImage } from "./utils";
+import { loadImage } from "../../assets/utils";
 
 interface Props {
   pointer?: El;

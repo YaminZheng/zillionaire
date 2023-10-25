@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { loadImage, useThrottle } from "./utils";
+import { loadImage, useThrottle } from "../../assets/utils";
 
 interface Props {
   disabled?: boolean;
