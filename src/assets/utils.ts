@@ -70,3 +70,33 @@ export const useLoadingEvent = <Args extends any[], R>(
 export function sleep(time: number = 1500): Promise<void> {
   return new Promise((resolve) => globalThis.setTimeout(() => resolve(), time));
 }
+
+export function injectFontSize(el: HTMLElement, baseFontSize = 18, baseWidth = 1920) {
+  el.style.fontSize = `${(window.outerWidth / baseWidth) * baseFontSize}px`;
+  const injectedFn = () => {
+    el.style.fontSize = `${(window.outerWidth / baseWidth) * baseFontSize}px`;
+  };
+  window.addEventListener("resize", injectedFn);
+  return () => window.removeEventListener("resize", injectedFn);
+}
+
+export const waitAnimationEnd2 = (el: HTMLElement) => {
+  return new Promise<void>((resove) => {
+    const animationend = () => {
+      resove();
+      el.removeEventListener("animationend", animationend);
+      el.removeEventListener("animationstart", animationstart);
+    };
+    const animationcancel = () => {
+      resove();
+      el.removeEventListener("animationcancel", animationcancel);
+      el.removeEventListener("animationstart", animationstart);
+    };
+    const animationstart = () => {
+      el.addEventListener("animationend", animationend);
+      el.addEventListener("animationcancel", animationcancel);
+    };
+
+    el.addEventListener("animationstart", animationstart);
+  });
+};

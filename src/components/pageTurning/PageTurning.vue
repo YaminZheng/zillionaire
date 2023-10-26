@@ -1,25 +1,7 @@
-<script setup lang="ts">
-import { computed, ref } from "vue";
-
-interface Props {
-  pages: Array<string>;
-}
-const props = defineProps<Props>();
-const currentPage = computed(() => props.pages[0]);
-const nextPage = computed(() => props.pages[1]);
-
-const isShow1 = ref(true);
-</script>
-
 <template>
-  <div class="page-turning-box" relative w-300px h-400px ml-10 @click="isShow1 = !isShow1">
+  <div class="page-turning-box" relative w-full>
     <Transition name="move">
-      <div v-if="isShow1" w-full h-full absolute top-0 left-0 bg-green>
-        <!-- <div class="current-content">{{ 1 }}</div> -->
-      </div>
-      <div v-else w-full h-full absolute top-0 left-0 bg-pink>
-        <!-- <div class="next-content">{{ 2 }}</div> -->
-      </div>
+      <slot />
     </Transition>
   </div>
 </template>
@@ -27,12 +9,32 @@ const isShow1 = ref(true);
 <style lang="scss" scoped>
 .move-enter-active,
 .move-leave-active {
-  transition: all 0.5s ease-out;
+  transition: all 0.5s linear;
 }
 
-.move-enter-from,
-.move-leave-to {
-  transform: translateX(-30px) translateY(-30px);
+.move-enter-from {
+  transform: translateX(20px) translateY(20px);
   opacity: 0;
+}
+.move-enter {
+  transform: translateX(0) translateY(0);
+  opacity: 0;
+}
+
+.move-leave {
+  transform: translateX(0) translateY(0);
+  opacity: 0;
+}
+.move-leave-to {
+  transform: translateX(-20px) translateY(20px);
+  opacity: 0;
+}
+
+.page-turning-box {
+  > * {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 }
 </style>

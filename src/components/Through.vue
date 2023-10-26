@@ -1,5 +1,5 @@
 <template>
-  <div class="through-box relative w-full h-full bg-black overflow-hidden">
+  <div class="through-box relative w-full h-full bg-black overflow-hidden" v-bind="$attrs">
     <div class="content preserve-3d absolute w-100px h-100px">
       <div class="item absolute w-full h-full translate-x-50px rotate-y-90"></div>
       <div class="item absolute w-full h-full -translate-x-50px -rotate-y-90"></div>
@@ -13,14 +13,6 @@
 </template>
 
 <style lang="scss" scoped>
-@function randomColor() {
-  @return rgb(0, random(50), random(200));
-}
-
-@function randomSize() {
-  @return random(3);
-}
-
 @function generateDot($count) {
   $shadow: none;
 
@@ -37,20 +29,30 @@
 
 @keyframes move {
   0% {
-    transform: translateZ(-50px) rotate(0deg);
+    transform: translateZ(-50px);
   }
   100% {
-    transform: translateZ(35px) rotate(0deg);
+    transform: translateZ(35px);
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
 .through-box {
   perspective: 4px;
   background: radial-gradient(white 0px, #232156 0.5px, black);
+  animation: fade 4s linear forwards;
   .content {
     left: calc(50% - 50px);
     top: calc(50% - 50px);
-    animation: move 2s linear forwards;
+    animation: move 4s linear forwards;
   }
 }
 
